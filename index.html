@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Lato|Montserrat&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Pacifico&display=swap" rel="stylesheet">
+
+</head>
+<style>
+    body{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: beige;
+}
+.one{
+    background: #FFF4ED;
+    padding: 20px 20px;
+    text-align: center;
+}
+#head1{
+    font-family: 'Montserrat', sans-serif;
+    position: relative;
+    color: #3CA1D9;
+    display: inline-block;
+    border-top: 2px solid;
+    border-bottom: 2px solid;
+    font-size: 2em;
+    padding: 5px 60px;
+    margin: 0;
+    line-height: 1;
+}
+
+#head1::before, #head1::after{
+    content: "";
+    position: absolute;
+    top: 0;
+    width: 30px;
+    height: 100%;
+    border-left: 2px solid;
+    border-right: 2px solid;
+    background: repeating-linear-gradient(180deg, transparent, transparent 2px, #3CA1D9 2px, #3CA1D9 4px);
+}
+
+#head1:before {left: 0;}
+#head1:after {right: 0;}
+
+.two{
+    width: 275px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    text-align: center;
+    font-family: 'Lato', sans-serif;
+    border: 2px solid #3CA1D9;
+    padding: 0 20px;
+    background: #FFF4EA;
+    margin-top: 3px;
+}
+
+.hint{
+    color: rgb(0, 76, 117);
+    text-decoration: underline;
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+    align-items: center;
+}
+
+#distance{
+    justify-content: flex-start;
+    color: rgb(0, 43, 66);
+    font-weight: 800;
+}
+
+#game_over{
+    background-color: #3CA1D9;
+  color: whitesmoke;
+  padding: 12px 16px;
+  font-size: 18px;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  width: 180px;
+  margin-top: 10px;
+  display: none;
+}
+
+.modal{
+    display: none;
+    position: fixed;
+    z-index: 5;
+    padding-top: 100px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0,0,0);
+    background-color: rgba(0,0,0,0.7);
+}
+
+.modal-content {
+    position: relative;
+    background-color: black;
+    margin: auto;
+    padding: 0;
+    border: 5px solid whitesmoke;
+    width: 50%;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+    -webkit-animation-name: animatetop;
+    -webkit-animation-duration: 2s;
+    animation-name: animatetop;
+    animation-duration: 2s;
+    text-align: center;
+}
+
+.modal-header {
+    font-family: 'Pacifico', cursive;
+    padding: 0 16px;
+    background-color: black;
+    color: #F8A600;
+}
+
+.modal-body {
+    font-family: 'Pacifico', cursive;
+    padding: 0 16px;
+    font-size: 20px;
+    color: #F8F8F8;
+    }
+
+@-webkit-keyframes animatetop {
+    from {top:-300px; opacity:0} 
+    to {top:0; opacity:1}
+}
+
+@keyframes animatetop {
+    from {top:-300px; opacity:0}
+    to {top:0; opacity:1}
+}
+
+.close {
+    color: white;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+</style>
+<body>
+    <div class="one"><h1 id="head1">Найди клад</h1></div>
+    <img id="map" src="map.png" width="400" height="400" alt="">
+    <div class="two">
+        <p class="hint"><b>Подсказка:</b></p>
+        <p id="distance"></p>
+    </div>
+    <button id="game_over">Завершить игру</button>
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+              <span class="close">&times;</span>
+              <h2>Mission passed</h2>
+            </div>
+            <div class="modal-body">
+              <p>респект +</p>
+            </div>
+          </div>
+    </div>
+
+
+    <script>
+
+        var getRandomNumber = function(size){
+            return Math.floor(Math.random() * size);
+        };
+
+        var getDistance = function(event, target){
+            var diffX = event.offsetX - target.x;
+            var diffY = event.offsetY - target.y;
+            return Math.sqrt((diffX * diffX) + (diffY * diffY));
+        };
+
+        var getDistanceHint = function(distance){
+            if(distance < 10){
+                return "Оооочень-очень близко!";
+            } else if(distance < 20) {
+                return "Совсем близко";
+            } else if(distance < 40){
+                return "Уже рядом совсем";
+            } else if(distance < 80){
+                return "Еще чуть-чуть";
+            } else if(distance < 160){
+                return "Надо точнее";
+            } else if(distance < 320){
+                return "Далеко еще";
+            } else {
+                return "Вообще не тут";
+            }
+        };
+
+        var width = 400;
+        var height = 400;
+        var clicks = 0;
+
+        var target = {
+            x: getRandomNumber(width),
+            y: getRandomNumber(height)
+        };
+
+        $('#map').click(function(event){
+            clicks++;
+            var distance = getDistance(event, target);
+
+            var distanceHint = getDistanceHint(distance);
+
+            $('#distance').text(distanceHint);
+
+            if(distance < 8){
+                alert("Клад найден! Сделано кликов: " + clicks);
+                $('.two').css('display', 'none');
+                $('#game_over').css('display', 'flex');
+            };
+        });
+
+        var modal = document.getElementById('myModal');
+        var btn = document.getElementById('game_over');
+        var span = document.getElementsByClassName('close')[0];
+        var audio = new Audio('./mission_complete.mp3');
+        btn.onclick = function(){
+            modal.style.display = "block";
+            audio.play();
+        }
+        span.onclick = function(){
+            modal.style.display = "none";
+        }
+        window.onclick = function(event){
+            if(event.target == modal){
+                modal.style.display = 'none';
+            }
+        }
+
+    </script>
+</body>
+</html>
